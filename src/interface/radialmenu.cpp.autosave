@@ -73,8 +73,6 @@ void SpellRadialMenu::draw() {
     // Determine selected options
     auto mousePosition = Point(this->startCoord.x - omousex, this->startCoord.y - omousey);
     real_t angle = mousePosition.getAngle();
-    //Make the angle negative to advance clockwise
-    //angle -= 2*PI;
     real_t stepSize = 2*PI / numoptions;
 
     int selectedOption = angle/stepSize;
