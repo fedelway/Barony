@@ -213,7 +213,8 @@ extern bool stop;
 #define IN_HOTBAR_SCROLL_LEFT 22
 #define IN_HOTBAR_SCROLL_RIGHT 23
 #define IN_HOTBAR_SCROLL_SELECT 24
-#define NUMIMPULSES 25
+#define IN_SPELL_WHEEL 25
+#define NUMIMPULSES 26
 static const std::vector<std::string> impulseStrings =
 {
 	"IN_FORWARD",
@@ -240,7 +241,8 @@ static const std::vector<std::string> impulseStrings =
 	"IN_FOLLOWERMENU_CYCLENEXT",
 	"IN_HOTBAR_SCROLL_LEFT",
 	"IN_HOTBAR_SCROLL_RIGHT",
-	"IN_HOTBAR_SCROLL_SELECT"
+    "IN_HOTBAR_SCROLL_SELECT",
+    "IN_SPELL_WHEEL"
 };
 
 //Joystick/gamepad impulses

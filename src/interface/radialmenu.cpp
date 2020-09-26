@@ -9,17 +9,17 @@ SpellRadialMenu spellRadialMenu;
 void SpellRadialMenu::draw() {
 
     if (!this->shouldDraw()) {
+        this->isDrawing = false;
         return;
     }
 
-    int menuX = omousex;
-    int menuY = omousey;
+    this->recordMouseCoordinates();
 
     SDL_Rect src;
     src.x = xres / 2;
     src.y = yres / 2;
 
-    int numoptions = 8;
+    int numoptions = 10;
     real_t angleStart = PI / 2 - (PI / numoptions);
     real_t angleMiddle = angleStart + PI / numoptions;
     real_t angleEnd = angleMiddle + PI / numoptions;
@@ -70,40 +70,35 @@ void SpellRadialMenu::draw() {
     angleMiddle = angleStart + PI / numoptions;
     angleEnd = angleMiddle + PI / numoptions;
 
-    bool mouseInCenterButton = sqrt(pow((omousex - menuX), 2) + pow((omousey - menuY), 2)) < (radius - thickness);
+    // Determine selected options
+    auto mousePosition = Point(this->startCoord.x - omousex, this->startCoord.y - omousey);
+    real_t angle = mousePosition.getAngle();
+    //Make the angle negative to advance clockwise
+    angle -= 2*PI;
+    real_t stepSize = 2*PI / numoptions;
+
+    int selectedOption = angle/stepSize;
+    //ajust option
+    selectedOption = std::abs( (selectedOption*-1) + 3) % numoptions;
 
     for ( i = 0; i < numoptions; ++i )
     {
         // see if mouse cursor is within an option.
         if ( highlight == -1 )
         {
-            if ( !mouseInCenterButton )
-            {
-                real_t x1 = menuX + (radius + thickness + 45) * cos(angleEnd);
-                real_t y1 = menuY - (radius + thickness + 45) * sin(angleEnd);
-                real_t x2 = menuX + 5 * cos(angleMiddle);
-                real_t y2 = menuY - 5 * sin(angleMiddle);
-                real_t x3 = menuX + (radius + thickness + 45) * cos(angleStart);
-                real_t y3 = menuY - (radius + thickness + 45) * sin(angleStart);
-                real_t a = ((y2 - y3)*(omousex - x3) + (x3 - x2)*(omousey - y3)) / ((y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3));
-                real_t b = ((y3 - y1)*(omousex - x3) + (x1 - x3)*(omousey - y3)) / ((y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3));
-                real_t c = 1 - a - b;
-                if ( (0 <= a && a <= 1) && (0 <= b && b <= 1) && (0 <= c && c <= 1) )
-                {
-                    //barycentric calc for figuring if mouse point is within triangle.
-                    highlight = i;
-                    drawImageRing(fancyWindow_bmp, &src, radius, thickness, (numoptions) * 8, angleStart, angleEnd, 192);
+            if(i == selectedOption) {
+                highlight = i;
+                drawImageRing(fancyWindow_bmp, &src, radius, thickness, (numoptions) * 8, angleStart, angleEnd, 192);
 
-                    // draw borders around highlighted item.
-                    Uint32 borderColor = uint32ColorBaronyBlue(*mainsurface);
-                    drawLine(xres / 2 + (radius - thickness) * cos(angleStart), yres / 2 - (radius - thickness) * sin(angleStart),
-                        xres / 2 + (radius + thickness) * cos(angleStart), yres / 2 - (radius + thickness) * sin(angleStart), borderColor, 192);
-                    drawLine(xres / 2 + (radius - thickness) * cos(angleEnd), yres / 2 - (radius - thickness) * sin(angleEnd),
-                        xres / 2 + (radius + thickness - 1) * cos(angleEnd), yres / 2 - (radius + thickness - 1) * sin(angleEnd), borderColor, 192);
+                // draw borders around highlighted item.
+                Uint32 borderColor = uint32ColorBaronyBlue(*mainsurface);
+                drawLine(xres / 2 + (radius - thickness) * cos(angleStart), yres / 2 - (radius - thickness) * sin(angleStart),
+                    xres / 2 + (radius + thickness) * cos(angleStart), yres / 2 - (radius + thickness) * sin(angleStart), borderColor, 192);
+                drawLine(xres / 2 + (radius - thickness) * cos(angleEnd), yres / 2 - (radius - thickness) * sin(angleEnd),
+                    xres / 2 + (radius + thickness - 1) * cos(angleEnd), yres / 2 - (radius + thickness - 1) * sin(angleEnd), borderColor, 192);
 
-                    drawArcInvertedY(xres / 2, yres / 2, radius - thickness, std::round((angleStart * 180) / PI), ((angleEnd * 180) / PI), borderColor, 192);
-                    drawArcInvertedY(xres / 2, yres / 2, (radius + thickness), std::round((angleStart * 180) / PI), ((angleEnd * 180) / PI) + 1, borderColor, 192);
-                }
+                drawArcInvertedY(xres / 2, yres / 2, radius - thickness, std::round((angleStart * 180) / PI), ((angleEnd * 180) / PI), borderColor, 192);
+                drawArcInvertedY(xres / 2, yres / 2, (radius + thickness), std::round((angleStart * 180) / PI), ((angleEnd * 180) / PI) + 1, borderColor, 192);
             }
         }
 
@@ -119,22 +114,35 @@ void SpellRadialMenu::draw() {
         img.h = sidebar_unlock_bmp->h;
 
         // draw the text for the menu wheel.
-        drawImage(sidebar_unlock_bmp, nullptr, &img); // locked menu options
+        //drawImage(sidebar_unlock_bmp, nullptr, &img); // locked menu options
+
+        // Write option number
+        auto iStr = std::to_string(i);
+        TTF_SizeUTF8(ttf12, iStr.c_str(), &width, nullptr);
+        ttfPrintText(ttf12, txt.x - width / 2, txt.y - 4, iStr.c_str());
 
         angleStart += 2 * PI / numoptions;
         angleMiddle = angleStart + PI / numoptions;
         angleEnd = angleMiddle + PI / numoptions;
     }
-    // draw center text.
-    if ( mouseInCenterButton )
-    {
-        highlight = -1;
-        drawCircle(xres / 2, yres / 2, radius - thickness, uint32ColorBaronyBlue(*mainsurface), 192);
-    }
 }
 
 bool SpellRadialMenu::shouldDraw() {
+    return *inputPressed(impulses[IN_SPELL_WHEEL]);
+}
 
-    return *inputPressed(impulses[IN_FORWARD]);
-    //return true;
+void SpellRadialMenu::recordMouseCoordinates() {
+    if(!isDrawing) {
+        isDrawing = true;
+        this->startCoord = Point(omousex, omousey);
+    }
+}
+
+Point::Point(): x(0), y(0) { }
+Point::Point(int x, int y) : x(x), y(y) { }
+real_t Point::getAngle() {
+    real_t angle = std::atan2(y,x);
+    if(angle < 0)
+       angle += 2*PI;
+    return angle;
 }

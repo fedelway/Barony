@@ -735,6 +735,7 @@ void defaultImpulses()
 	impulses[IN_HOTBAR_SCROLL_LEFT] = 286;
 	impulses[IN_HOTBAR_SCROLL_RIGHT] = 287;
 	impulses[IN_HOTBAR_SCROLL_SELECT] = 284;
+    impulses[IN_SPELL_WHEEL] = 23;
 
 	joyimpulses[INJOY_STATUS] = 307;
 	joyimpulses[INJOY_SPELL_LIST] = SCANCODE_UNASSIGNED_BINDING;
@@ -836,6 +837,7 @@ void defaultConfig()
 	consoleCommand("/bind 286 IN_HOTBAR_SCROLL_LEFT");
 	consoleCommand("/bind 287 IN_HOTBAR_SCROLL_RIGHT");
 	consoleCommand("/bind 284 IN_HOTBAR_SCROLL_SELECT");
+    consoleCommand("/bind 23 IN_SPELL_WHEEL");
 
 	consoleCommand("/joybind 307 INJOY_STATUS");
 	consoleCommand("/joybind 399 INJOY_SPELL_LIST"); //SCANCODE_UNASSIGNED_BINDING
