@@ -5,11 +5,16 @@
 #include "../items.hpp"
 #include "interface.hpp"
 
-SpellRadialMenu spellRadialMenu;
+RadialMenu radialMenu;
 
-void SpellRadialMenu::draw() {
+RadialMenu::RadialMenu() : selectedOption(0) { }
+
+void RadialMenu::draw() {
 
     if (!this->shouldDraw()) {
+        if(this->isDrawing)
+            this->changeInventory();
+
         this->isDrawing = false;
         return;
     }
@@ -76,7 +81,7 @@ void SpellRadialMenu::draw() {
     real_t angle = mousePosition.getAngle();
     real_t stepSize = 2*PI / numoptions;
 
-    int selectedOption = angle/stepSize;
+    this->selectedOption = angle/stepSize;
     //ajust option -> First option is at the top
     selectedOption = (selectedOption + 8) % numoptions;
 
@@ -125,15 +130,20 @@ void SpellRadialMenu::draw() {
     }
 }
 
-bool SpellRadialMenu::shouldDraw() {
+bool RadialMenu::shouldDraw() {
     return *inputPressed(impulses[IN_SPELL_WHEEL]);
 }
 
-void SpellRadialMenu::recordMouseCoordinates() {
+void RadialMenu::recordMouseCoordinates() {
     if(!isDrawing) {
         isDrawing = true;
         this->startCoord = Point(omousex, omousey);
     }
+}
+
+void RadialMenu::changeInventory() {
+    selectHotbarSlot(this->selectedOption);
+    *inputPressed(impulses[IN_HOTBAR_SCROLL_SELECT]) = 1;
 }
 
 Point::Point(): x(0), y(0) { }

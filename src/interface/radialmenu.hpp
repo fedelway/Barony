@@ -13,15 +13,18 @@ struct Point {
     real_t getAngle();
 };
 
-class SpellRadialMenu {
+class RadialMenu {
 
 public:
+    RadialMenu();
     void draw();
 
 private:
     bool shouldDraw();
     void recordMouseCoordinates();
+    void changeInventory();
 
+    int selectedOption;
     bool isDrawing;
     Point startCoord;
 };

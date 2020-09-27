@@ -1910,7 +1910,7 @@ void drawStatus()
 	}
 
 	FollowerMenu.drawFollowerMenu();
-	spellRadialMenu.draw();
+    radialMenu.draw();
 
 	// stat increase icons
 	pos.w = 64;
