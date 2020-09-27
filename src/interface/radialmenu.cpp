@@ -2,6 +2,7 @@
 #include "../draw.hpp"
 #include "../player.hpp"
 #include "../colors.hpp"
+#include "../items.hpp"
 #include "interface.hpp"
 
 SpellRadialMenu spellRadialMenu;
@@ -73,12 +74,10 @@ void SpellRadialMenu::draw() {
     // Determine selected options
     auto mousePosition = Point(this->startCoord.x - omousex, this->startCoord.y - omousey);
     real_t angle = mousePosition.getAngle();
-    //Make the angle negative to advance clockwise
-    //angle -= 2*PI;
     real_t stepSize = 2*PI / numoptions;
 
     int selectedOption = angle/stepSize;
-    //ajust option - First option is at the top
+    //ajust option -> First option is at the top
     selectedOption = (selectedOption + 8) % numoptions;
 
     for ( i = 0; i < numoptions; ++i )
@@ -102,24 +101,23 @@ void SpellRadialMenu::draw() {
             }
         }
 
-        SDL_Rect txt;
-        txt.x = src.x + src.w * cos(angleMiddle);
-        txt.y = src.y - src.h * sin(angleMiddle);
-        txt.w = 0;
-        txt.h = 0;
-        SDL_Rect img;
-        img.x = txt.x - sidebar_unlock_bmp->w / 2;
-        img.y = txt.y - sidebar_unlock_bmp->h / 2;
-        img.w = sidebar_unlock_bmp->w;
-        img.h = sidebar_unlock_bmp->h;
+        // Draw the item icon (if any)
+        Uint32 itemId = hotbar[i].item;
+        if(itemId) {
+            int posX = src.x + src.w * cos(angleMiddle);
+            int posY = src.y - src.h * sin(angleMiddle);
 
-        // draw the text for the menu wheel.
-        //drawImage(sidebar_unlock_bmp, nullptr, &img); // locked menu options
+            Item* item = uidToItem(hotbar[i].item);
+            SDL_Surface* sprite = itemSprite(item);
 
-        // Write option number
-        auto iStr = std::to_string(i);
-        TTF_SizeUTF8(ttf12, iStr.c_str(), &width, nullptr);
-        ttfPrintText(ttf12, txt.x - width / 2, txt.y - 4, iStr.c_str());
+            SDL_Rect img;
+            img.x = posX - sprite->w / 2;
+            img.y = posY - sprite->h / 2;
+            img.w = sprite->w;
+            img.h = sprite->h;
+
+            drawImage(sprite, nullptr, &img);
+        }
 
         angleStart -= 2 * PI / numoptions;
         angleMiddle = angleStart + PI / numoptions;
