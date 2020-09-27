@@ -1,6 +1,9 @@
 # Vs Code
 .vscode/
 
+# QtCreator
+*.autosave
+
 # CMAKE
 .cmake/
 CMakeLists.txt.user
